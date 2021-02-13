@@ -9,6 +9,7 @@
 <body>
 
     <h1>User list</h1>
+    <h1>{{ session('msg') }}</h1>
     <a href="/home">Back</a> |
     <a href="/logout">logout</a>
 

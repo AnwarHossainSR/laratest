@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 class HomeController extends Controller
 {
-    public function index(){
+    public function index(Request $req){
 
         $name = "admin";
         $id = "123";
@@ -22,104 +22,136 @@ class HomeController extends Controller
         // return view('home.index')
         //         ->withName($name)
         //         ->withId($id);
-
-        return view('home.index', compact('id', 'name'));
+        if($req->session()->has('username')){
+            return view('home.index', compact('id', 'name'));
+        }else{
+            $req->session()->flash('msg', 'invalid request...login first!');
+            return redirect('/login');
+        }
 
     }
 
-    public function create(){
-        return view('home.create');
-
+    public function create(Request $req){
+        if ($req->session()->get('username') == 'admin') {
+            return view('home.create');
+        } else {
+            return back()->with('msg','You have no permission');
+        }
     }
 
     public function store(Request $req){
 
+        if ($req->session()->get('username') == 'admin') {
+            $userlist= $this->getUserlist();
+            $newuser = ['id' => $req->id, 'name' => $req->username, 'email' => $req->email, 'password' => $req->password];
+            array_push($userlist, $newuser);
+            return view('home.list')->with('list', $userlist);
+        } else {
+            return back()->with('msg','You have no permission');
+        }
         //insert into DB or model...
-        $userlist= $this->getUserlist();
-        $newuser = ['id' => $req->id, 'name' => $req->username, 'email' => $req->email, 'password' => $req->password];
-        array_push($userlist, $newuser);
-        return view('home.list')->with('list', $userlist);
+
     }
 
-    public function edit($id){
+    public function edit($id,Request $req){
         $userlist= $this->getUserlist();
         $user = [];
-
-        foreach($userlist as $u){
-            if($u['id'] == $id ){
-                $user = $u;
-                break;
+        if ($req->session()->get('username') == 'admin') {
+            foreach($userlist as $u){
+                if($u['id'] == $id ){
+                    $user = $u;
+                    break;
+                }
             }
+
+            return view('home.edit')->with('user', $user);
+        } else {
+            return back()->with('msg','You have no permission');
         }
 
-        return view('home.edit')->with('user', $user);
+
     }
 
 
     public function update($id, Request $req){
 
-        $userlist= $this->getUserlist();
-        $user = [];
+        if ($req->session()->get('username') == 'admin') {
+            $userlist= $this->getUserlist();
+            $user = [];
 
-        foreach ($userlist as $u) {
-            if ($u['id'] == $id) {
+            foreach ($userlist as $u) {
+                if ($u['id'] == $id) {
 
-                $u['name']=$req->username;
-                $u['email']=$req->email;
-                $u['password']=$req->password;
-                $user= $u;
-                array_push($userlist, $user);
+                    $u['name']=$req->username;
+                    $u['email']=$req->email;
+                    $u['password']=$req->password;
+                    $user= $u;
+                    array_push($userlist, $user);
 
+                }
             }
+            return view('home.list')->with('list', $userlist);
+        } else {
+            return back()->with('msg','You have no permission');
         }
-        return view('home.list')->with('list', $userlist);
+
+
 
     }
 
-    public function delete($id){
-        $userlist= $this->getUserlist();
-        $user = [];
+    public function delete($id,Request $req){
 
-        foreach($userlist as $u){
-            if($u['id'] == $id ){
-                $user = $u;
-                break;
+        if ($req->session()->get('username') == 'admin') {
+            $userlist= $this->getUserlist();
+            $user = [];
+
+            foreach($userlist as $u){
+                if($u['id'] == $id ){
+                    $user = $u;
+                    break;
+                }
             }
+            return view('home.delete')->with('user', $user);
+        } else {
+            return back()->with('msg','You have no permission');
         }
-
-        return view('home.delete')->with('user', $user);
 
     }
 
 
-    public function confirmDelete($id)
+    public function confirmDelete($id,Request $req)
     {
+        if ($req->session()->get('username') == 'admin') {
+            $userlist= $this->getUserlist();
+            /* $user = [];
 
-        $userlist= $this->getUserlist();
-        /* $user = [];
+            foreach ($userlist as $u) {
+                if ($u['id'] == $id) {
 
-        foreach ($userlist as $u) {
-            if ($u['id'] == $id) {
+                    $u['id']='';
+                    $u['name']='';
+                    $u['email']='';
+                    $u['password']='';
+                    break;
 
-                $u['id']='';
-                $u['name']='';
-                $u['email']='';
-                $u['password']='';
-                break;
-
+                }
             }
-        }
- */
+            */
 
 
 
-        for ($i = 0; $i < count($userlist); $i++) {
-            if ($userlist[$i]['id'] == $id) {
-                unset($userlist[$i]);
-                break;
+            for ($i = 0; $i < count($userlist); $i++) {
+                if ($userlist[$i]['id'] == $id) {
+                    unset($userlist[$i]);
+                    break;
+                }
             }
+            return view('home.list')->with('list', $userlist);
+        } else {
+            return back()->with('msg','You have no permission');
         }
-        return view('home.list')->with('list', $userlist);
+
+
     }
 
     public function userlist(){

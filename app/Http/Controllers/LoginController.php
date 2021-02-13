@@ -16,8 +16,10 @@ class LoginController extends Controller
             //echo "null submission";
             return back()->with('empty','All fields are required!');
         }elseif($req->username == $req->password){
+            $req->session()->put('username',$req->username);
             return redirect('/home');
         }else{
+            $req->session()->flash('msg','Invalid username or password');
             return redirect('/login');
         }
     }
