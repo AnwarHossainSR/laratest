@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -12,15 +13,22 @@ class LoginController extends Controller
 
     public function verify(Request $req){
 
+        $user = User::where('password',$req->password)
+                    ->where('username',$req->username)
+                    ->first();
+
         if($req->username == "" || $req->password == ""){
-            //echo "null submission";
             return back()->with('empty','All fields are required!');
-        }elseif($req->username == $req->password){
-            $req->session()->put('username',$req->username);
+        }elseif($user){
+            $req->session()->put('username',$user->username);
+            $req->session()->put('usertype',$user->type);
             return redirect('/home');
         }else{
-            $req->session()->flash('msg','Invalid username or password');
-            return redirect('/login');
+            //$req->session()->flash('msg','Invalid username or password');
+            return back()->with('empty','All fields are required!');
         }
+
+
+
     }
 }
