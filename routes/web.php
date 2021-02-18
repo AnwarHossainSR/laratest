@@ -21,3 +21,4 @@ Route::get('/home/edit/{id}', [HomeController::class,'edit'])->middleware('user'
 Route::post('/home/edit/{id}', [HomeController::class,'update'])->middleware('user');
 Route::get('/home/delete/{id}', [HomeController::class,'delete'])->middleware('user');
 Route::post('/home/delete/{id}', [HomeController::class,'confirmDelete'])->middleware('user');
+Route::get('/home/details/{id}', [HomeController::class,'details'])->middleware('user');

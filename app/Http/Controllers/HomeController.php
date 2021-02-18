@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -31,12 +32,22 @@ class HomeController extends Controller
     public function store(Request $req){
 
         if ($req->session()->get('usertype') == 'Admin') {
-            $user = new User();
+            /* $user = new User();
             $user->username = $req->username;
             $user->email = $req->email;
             $user->password = $req->password;
             $user->type = "User";
-            $user->save();
+            $user->save(); */
+
+            DB::table('users')
+            ->insert(
+                [
+                    'username'=>$req->username,
+                    'email'=>$req->email,
+                    'password'=>$req->password,
+                    'type'=>'User'
+                ]
+            );
             return redirect('/home/userlist');
         } else {
             return back()->with('msg','You have no permission');
@@ -46,7 +57,8 @@ class HomeController extends Controller
 
     public function edit($id,Request $req){
 
-        $user = User::find($id);
+        //$user = User::find($id);
+        $user = DB::table('users')->where('id',$id)->first();
         if ($req->session()->get('usertype') == 'Admin') {
 
             return view('home.edit')->with('user', $user);
@@ -64,12 +76,21 @@ class HomeController extends Controller
     public function update($id, Request $req){
 
         if ($req->session()->get('usertype') == 'Admin') {
-            $user = User::find($id);
+            /* $user = User::find($id);
             $user->username = $req->username;
             $user->password = $req->password;
             $user->email     = $req->email;
             $user->type     = $req->type;
-            $user->save();
+            $user->save(); */
+
+            DB::table('users')
+                    ->where('id', $id)
+                    ->update([
+                            'username' =>$req->username,
+                            'password' =>$req->password,
+                            'email' =>$req->email,
+                            'type' =>$req->type,
+                            ]);
 
             return redirect('/home/userlist')->with('msg', 'Update Successfull');
         } else {
@@ -83,7 +104,7 @@ class HomeController extends Controller
     public function delete($id,Request $req){
 
         if ($req->session()->get('usertype') == 'Admin') {
-            $user = User::find($id);
+            $user = DB::table('users')->where('id',$id)->first();
             return view('home.delete')->with('user', $user);
         } else {
             return back()->with('msg','You have no permission');
@@ -97,7 +118,7 @@ class HomeController extends Controller
 
         if ($req->session()->get('usertype') == 'Admin') {
 
-            if(User::destroy($id)){
+            if(DB::table('users')->where('id',$id)->delete()){
                 return redirect('/home/userlist')->with('msg', 'Deleted successfully');
             }else{
                 return back()->with('msg', 'Something is wrong');
@@ -108,9 +129,21 @@ class HomeController extends Controller
 
     }
 
+    public function details($id,Request $req){
+
+        if ($req->session()->get('usertype') == 'Admin') {
+            $user = DB::table('users')->where('id',$id)->first();
+            return view('home.details')->with('user', $user);
+        } else {
+            return back()->with('msg','You have no permission');
+        }
+
+    }
+
     public function userlist(){
         // db model userlist
-        $userlist = User::all();
+        //$userlist = User::all();
+        $userlist = DB::table('users')->get();
         return view('home.list')->with('list', $userlist);
     }
 

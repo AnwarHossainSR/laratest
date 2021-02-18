@@ -29,8 +29,8 @@
 					<td>Type</td>
 					<td>
 						<select name='type'>
-							<option value="Admin" @if($user['type'] == 'Admin') selected @endif > ADMIN </option>
-							<option value="User"  @if($user['type'] == 'User') selected @endif > USER </option>
+							<option value="Admin" @if($user->type == 'Admin') selected @endif > ADMIN </option>
+							<option value="User"  @if($user->type == 'User') selected @endif > USER </option>
 						</select>
 					</td>
 				</tr>
