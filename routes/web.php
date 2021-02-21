@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\EmailController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,3 +23,7 @@ Route::post('/home/edit/{id}', [HomeController::class,'update'])->middleware('us
 Route::get('/home/delete/{id}', [HomeController::class,'delete'])->middleware('user');
 Route::post('/home/delete/{id}', [HomeController::class,'confirmDelete'])->middleware('user');
 Route::get('/home/details/{id}', [HomeController::class,'details'])->middleware('user');
+
+//Email
+Route::get('/email', [EmailController::class,'create']);
+Route::post('/email', [EmailController::class,'sendEmail'])->name('send.email');
